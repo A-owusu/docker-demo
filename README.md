@@ -16,7 +16,13 @@ This project demonstrates clean Docker workflows, reproducible builds, and simpl
 ---
 
 ## 📦 Project Structure
-docker-demo/ │ ├── app/ │   ├── main.py │   └── requirements.txt │ ├── Dockerfile └── README.md
+docker-demo (repository)
+│
+├── Dockerfile
+├── README.md
+└── app/
+    ├── main.py
+    └── requirements.txt
 
 
 ---
