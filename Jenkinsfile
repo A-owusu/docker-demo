@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB = credentials('dockerhub')
         IMAGE = "owusu495/flask-app"
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -22,21 +22,28 @@ pipeline {
         stage('Test') {
             steps {
                 sh "echo 'Running tests...'"
+                // sh "pytest -q"   // (optional: once tests exist)
             }
         }
 
         stage('Push to Docker Hub') {
             steps {
-                sh "echo ${DOCKERHUB_PSW} | docker login -u ${DOCKERHUB_USR} --password-stdin"
-                sh "docker push ${IMAGE}:latest"
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    sh """
+                        echo \$PASS | docker login -u \$USER --password-stdin
+                        docker push ${IMAGE}:latest
+                    """
+                }
             }
         }
 
         stage('Deploy') {
             steps {
-                sh "docker stop flask-app || true"
-                sh "docker rm flask-app || true"
-                sh "docker run -d -p 5000:5000 --name flask-app ${IMAGE}:latest"
+                sh """
+                    docker stop flask-app || true
+                    docker rm flask-app || true
+                    docker run -d -p 5000:5000 --name flask-app ${IMAGE}:latest
+                """
             }
         }
     }
